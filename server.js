@@ -14,30 +14,32 @@ app.options('/todolist/*', (req, res) => {
     )
     res.send('ok')
   })
-const obj =[]
+
+const list = [[],[]]
+
 app.get('/visitors',(req,res)=>{
 
     const ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || '').split(',')[0]
 console.log(ip)    
     fetch(`https://js5.c0d3.com/location/api/ip/${ip}`).then(r=>r.json()).then(data=>{
-obj.forEach((e)=>{
+list[0].forEach((e)=>{
 e.current =false
 })       
-       if(!obj.find(e=>{
+       if(!list[0].find(e=>{
             return e.ip === ip
         })){
-            obj.push({
+            list[0].push({
                 "ip":ip,
-                "count":0,
+                "count":1,
                 "ll":data.ll,
                 "cityStr":data.cityStr,
-  		"current":true              
+  		        "current":true              
             })
         } 
-        if(obj.find(e=>{
+        if(list[0].find(e=>{
             return e.ip ===ip
         }))
-            {obj.forEach((e)=>{
+            {list[0].forEach((e)=>{
                 if (e.ip === ip){
                     e.count +=1
 		    e.current = true
@@ -45,12 +47,31 @@ e.current =false
 
             })}
         
-    })
-    
+   
+    if(!list[1].find((e)=>{
+        return e.city===data.cityStr
+    })){
+        list[1].push({
+            "city":data.cityStr,
+            "count":1
+        })
+    }
+    if(list[1].find((e)=>{
+        return e.city===data.cityStr
+    })){
+        list[1].forEach(m=>{
+            if(m.city===data.cityStr){
+                m.count+=1
+            }
+        })
+    }
+})
     res.sendFile("index.html",{root:__dirname})
 })
 
 app.get('/api/visitors',(req,res)=>{
-    res.json(obj)
+    res.json(list)
 })
+
+
 app.listen(port,()=>{console.log(`listening on port ${port}`)})
