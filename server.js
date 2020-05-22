@@ -65,9 +65,9 @@ e.current =false
             }
         })
     }
-})
-    res.sendFile("index.html",{root:__dirname})
-})
+}).then((r)=>{
+    res.sendFile("index.html",{root:__dirname})})
+
 
 app.get('/api/visitors',(req,res)=>{
     res.json(list)
